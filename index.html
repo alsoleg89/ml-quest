@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ML Quest — Zero to Interview</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<link rel="stylesheet" href="assets/style.css?v=3">
+</head>
+<body>
+<div id="app">
+  <div class="boot-splash">
+    <div class="boot-logo">⚔️ ML Quest</div>
+    <div class="boot-sub">loading…</div>
+  </div>
+</div>
+
+<!-- Pyodide worker source (loaded as a Blob so it works from file:// too) -->
+<script type="text/plain" id="pyworker-src">
+'use strict';
+var PYODIDE_INDEX = null; // set via init message
+var pyodideReadyPromise = null;
+var loadedPkgs = {};
+
+var HARNESS = [
+  'import ast, asyncio, io, json, sys, traceback',
+  '',
+  'async def _mlq_main():',
+  '    code = MLQ_CODE',
+  '    tests = json.loads(MLQ_TESTS)',
+  '    out = {"setupError": None, "stdout": "", "tests": []}',
+  '    buf = io.StringIO()',
+  '    _so, _se = sys.stdout, sys.stderr',
+  '    sys.stdout = sys.stderr = buf',
+  '    ns = {"__name__": "__main__"}',
+  '    flags = ast.PyCF_ALLOW_TOP_LEVEL_AWAIT',
+  '    try:',
+  '        try:',
+  '            co = compile(code, "solution.py", "exec", flags=flags, dont_inherit=True)',
+  '            r = eval(co, ns)',
+  '            if asyncio.iscoroutine(r):',
+  '                await r',
+  '        except BaseException:',
+  '            tb = traceback.format_exc(limit=8)',
+  '            lines = [l for l in tb.splitlines() if "mlq_harness" not in l]',
+  '            out["setupError"] = "\\n".join(lines)[-1800:]',
+  '        if out["setupError"] is None:',
+  '            for t in tests:',
+  '                tns = dict(ns)',
+  '                rec = {"name": t["name"], "pass": False, "message": ""}',
+  '                try:',
+  '                    co = compile(t["code"], "test.py", "exec", flags=flags, dont_inherit=True)',
+  '                    r = eval(co, tns)',
+  '                    if asyncio.iscoroutine(r):',
+  '                        await r',
+  '                    rec["pass"] = True',
+  '                except AssertionError as e:',
+  '                    rec["message"] = str(e) or "assertion failed (no message)"',
+  '                except BaseException as e:',
+  '                    rec["message"] = type(e).__name__ + ": " + str(e)',
+  '                out["tests"].append(rec)',
+  '    finally:',
+  '        sys.stdout, sys.stderr = _so, _se',
+  '    out["stdout"] = buf.getvalue()[-20000:]',
+  '    return json.dumps(out)',
+  '',
+  'await _mlq_main()'
+].join('\n');
+
+function post(m) { self.postMessage(m); }
+
+async function boot() {
+  if (!pyodideReadyPromise) {
+    pyodideReadyPromise = (async function () {
+      post({ t: 'status', text: 'Booting Python (first time ~10–20s, cached after)…' });
+      importScripts(PYODIDE_INDEX + 'pyodide.js');
+      self.pyodide = await loadPyodide({ indexURL: PYODIDE_INDEX });
+      post({ t: 'boot-ok' });
+    })();
+  }
+  return pyodideReadyPromise;
+}
+
+self.onmessage = async function (ev) {
+  var job = ev.data;
+  if (job.t === 'init') { PYODIDE_INDEX = job.indexURL; return; }
+  if (job.t === 'warmup') {
+    try {
+      await boot();
+      for (var i = 0; i < (job.packages || []).length; i++) {
+        var p = job.packages[i];
+        if (!loadedPkgs[p]) {
+          post({ t: 'status', text: 'Loading ' + p + '…' });
+          await self.pyodide.loadPackage(p);
+          loadedPkgs[p] = true;
+        }
+      }
+      post({ t: 'warm-ok' });
+    } catch (e) { post({ t: 'fatal', error: String(e) }); }
+    return;
+  }
+  if (job.t !== 'run') return;
+  try {
+    await boot();
+    for (var j = 0; j < (job.packages || []).length; j++) {
+      var pkg = job.packages[j];
+      if (!loadedPkgs[pkg]) {
+        post({ t: 'status', text: 'Loading ' + pkg + '…' });
+        await self.pyodide.loadPackage(pkg);
+        loadedPkgs[pkg] = true;
+      }
+    }
+    post({ t: 'exec-start', id: job.id });
+    self.pyodide.globals.set('MLQ_CODE', job.code);
+    self.pyodide.globals.set('MLQ_TESTS', JSON.stringify(job.tests || []));
+    var t0 = Date.now();
+    var raw = await self.pyodide.runPythonAsync(HARNESS);
+    var result = JSON.parse(raw);
+    result.durationMs = Date.now() - t0;
+    post({ t: 'done', id: job.id, result: result });
+  } catch (e) {
+    post({ t: 'done', id: job.id, result: { setupError: 'Runtime error: ' + String(e), stdout: '', tests: [], durationMs: 0 } });
+  }
+};
+</script>
+
+<script src="js/config.js?v=3"></script>
+<script src="js/md.js?v=3"></script>
+<script src="js/ui.js?v=3"></script>
+<script src="js/store.js?v=3"></script>
+<script src="js/runner.js?v=3"></script>
+<script src="data/week1.js?v=3"></script>
+<script src="data/week2.js?v=3"></script>
+<script src="data/week3.js?v=3"></script>
+<script src="data/week4.js?v=3"></script>
+<script src="data/week5.js?v=3"></script>
+<script src="data/week6.js?v=3"></script>
+<script src="data/week7.js?v=3"></script>
+<script src="data/week8.js?v=3"></script>
+<script src="data/week9.js?v=3"></script>
+<script src="data/cards.js?v=3"></script>
+<script src="data/dojo-extras.js?v=3"></script>
+<script src="js/views_core.js?v=3"></script>
+<script src="js/views_home.js?v=3"></script>
+<script src="js/views_map.js?v=3"></script>
+<script src="js/views_session.js?v=3"></script>
+<script src="js/views_trainer.js?v=3"></script>
+<script src="js/views_cards.js?v=3"></script>
+<script src="js/views_boss.js?v=3"></script>
+<script src="js/views_dojo.js?v=3"></script>
+<script src="js/views_qa.js?v=3"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="js/app.js?v=3"></script>
+</body>
+</html>

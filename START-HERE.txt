@@ -1,0 +1,58 @@
+⚔️  ML QUEST — Zero to Interview
+================================
+
+A 5-week gamified course: Python → Classic ML → NLP/Transformers → LLM & RAG →
+Agents & Production. You write and run real Python right in the browser — no IDE,
+no setup. 87 coding exercises with tests, 271 quiz questions, 176 interview
+flashcards, 5 timed boss exams.
+
+
+HOW TO START
+------------
+
+macOS:
+  1. Unzip this folder somewhere (e.g. Documents).
+  2. Double-click  start-course.command
+     If macOS says the file is from an unidentified developer:
+     right-click it → Open → Open anyway. (One time only.)
+  3. Your browser opens at http://localhost:8877 — that's it.
+
+Windows:
+  1. Unzip this folder.
+  2. Double-click  start-course.bat
+     (Needs Python 3: https://www.python.org/downloads/ — tick "Add to PATH".)
+  3. Keep the black console window open while you study.
+
+Any system, from a terminal:
+     cd  <this folder>
+     python3 -m http.server 8877
+     then open  http://localhost:8877
+
+
+FIRST RUN
+---------
+The first time you open a coding exercise, the in-browser Python engine
+(Pyodide) downloads — about 10-20 seconds, once. After that it's cached and
+instant. You need an internet connection for that first load; the course text
+and quizzes work offline.
+
+
+HOW TO USE IT
+-------------
+Press "Continue" on the home screen — the app walks you through the day:
+read → quiz → code → flashcards. Don't feel like starting? Press the
+"2-minute warm-up" button instead: five flashcards, and you're usually rolling.
+
+Your progress (XP, streak, badges, your code) is saved in this browser only.
+Settings ⚙️ → Export progress makes a backup file.
+
+
+WHAT'S INSIDE
+-------------
+  index.html, js/, assets/   the app (plain JavaScript, no build step)
+  data/                      the course content
+  docs/content-spec.md       how to write/extend content
+  tools/                     content validator + solution checker (optional,
+                             needs Node.js and Python — only for authors)
+
+Have fun. The first boss is waiting at the end of week 1. 🐉
