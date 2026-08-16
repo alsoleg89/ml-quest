@@ -228,6 +228,7 @@ h2 { font-size: 20px; margin: 0 0 10px; }
 
 /* ---------- trainer ---------- */
 .trainer { display: grid; grid-template-columns: minmax(380px, 46%) 1fr; gap: 18px; align-items: start; }
+.trainer > * { min-width: 0; }
 @media (max-width: 1020px) { .trainer { grid-template-columns: 1fr; } }
 .tr-left { position: sticky; top: 74px; max-height: calc(100vh - 90px); overflow-y: auto; }
 @media (max-width: 1020px) { .tr-left { position: static; max-height: none; } }
@@ -304,5 +305,47 @@ h2 { font-size: 20px; margin: 0 0 10px; }
 .qa-line.fail { color: var(--bad); }
 .qa-line.pass { color: var(--good); }
 
+.road-label { width: 210px; }
+
 .footer-note { text-align: center; color: var(--dim); font-size: 12.5px; margin-top: 46px; }
+
+/* ---------- mobile ---------- */
+@media (max-width: 720px) {
+  html, body { overflow-x: hidden; }
+  .topbar { flex-wrap: wrap; gap: 8px 10px; padding: 10px 12px; }
+  .logo { font-size: 15px; }
+  .topbar-right { margin-left: auto; gap: 8px; }
+  .xp-wrap { display: none; }
+  .lvl-chip { font-size: 11.5px; padding: 5px 9px; }
+  .streak-chip { font-size: 12.5px; padding: 5px 8px; }
+  .nav {
+    order: 10; flex-basis: 100%; margin-left: 0;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; white-space: nowrap; flex-wrap: nowrap;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a { padding: 6px 10px; font-size: 13.5px; flex-shrink: 0; }
+  .page { padding: 16px 12px 60px; }
+  .card { padding: 15px 14px; }
+  h1 { font-size: 21px; }
+  .hero { flex-direction: column; text-align: center; }
+  .hero-main .row { justify-content: center; }
+  .hero-title { font-size: 20px; }
+  .stat .v { font-size: 19px; }
+  .btn.big { padding: 11px 18px; font-size: 14.5px; }
+  .road-row { row-gap: 4px; }
+  .road-label { width: auto; flex: 1; min-width: 0; }
+  .road-bar { flex-basis: 100%; order: 5; }
+  .road-pct { order: 4; }
+  .day-node { max-width: none; min-width: 44%; }
+  .editor-shell .CodeMirror { min-height: 240px; font-size: 12.5px; }
+  .editor-fallback { min-height: 240px; font-size: 12.5px; }
+  .tr-toolbar .btn { padding: 8px 12px; font-size: 13px; }
+  .flash { padding: 20px 14px; min-height: 200px; }
+  .flash .f-q { font-size: 16.5px; }
+  .boss-timer { font-size: 17px; padding: 4px 10px; }
+  .modal { padding: 18px 14px; }
+  .quiz-q { font-size: 15.5px; }
+  .codeblock { font-size: 12px; padding: 10px 12px; }
+}
 kbd { font-family: var(--mono); font-size: 11px; background: var(--panel2); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; }

@@ -102,11 +102,11 @@ Views.home = function (el) {
     h('h2', {}, '🗺️ The road'),
     ...IDX.weeks.map(W => {
       const p = IDX.weekProgress(W);
-      return h('div', { class: 'row', style: { marginTop: '10px', cursor: 'pointer' }, onclick: () => App.go('map') },
-        h('span', { style: { width: '30px', textAlign: 'center' } }, W.emoji),
-        h('span', { style: { width: '210px', fontWeight: 700, fontSize: '14px' } }, 'W' + W.num + ' · ' + W.title),
-        h('div', { class: 'progress thin', style: { flex: 1 } }, h('div', { style: { width: Math.round(p.pct * 100) + '%' } })),
-        h('span', { class: 'small muted', style: { width: '52px', textAlign: 'right' } }, Math.round(p.pct * 100) + '%'));
+      return h('div', { class: 'row road-row', style: { marginTop: '10px', cursor: 'pointer' }, onclick: () => App.go('map') },
+        h('span', { class: 'road-emoji', style: { width: '30px', textAlign: 'center' } }, W.emoji),
+        h('span', { class: 'road-label', style: { fontWeight: 700, fontSize: '14px' } }, 'W' + W.num + ' · ' + W.title),
+        h('div', { class: 'progress thin road-bar', style: { flex: 1 } }, h('div', { style: { width: Math.round(p.pct * 100) + '%' } })),
+        h('span', { class: 'small muted road-pct', style: { width: '52px', textAlign: 'right' } }, Math.round(p.pct * 100) + '%'));
     }));
 
   const badges = h('div', { class: 'card' },
