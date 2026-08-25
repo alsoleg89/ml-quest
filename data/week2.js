@@ -1910,7 +1910,7 @@ assert abs(t - 0.3) < 1e-9, f"expected smallest tying threshold 0.3, got {t}"` }
 
   W.lessons["w2d5-lesson"] = {
     title: "Trees, Ensembles & Friends",
-    md: String.raw`When an interviewer asks what you would actually try on tabular data, the honest answer is almost never a neural net — it is gradient-boosted trees. This day is the classic-ML zoo: how a tree splits, why one tree overfits but a forest does not, what boosting really does, and the two unsupervised staples (kNN and k-means) that round out the toolkit.
+    md: String.raw`When an interviewer asks what you would actually try on tabular data, the honest answer is almost never a neural net — it is gradient-boosted trees. This day is the classic-ML zoo: how a tree splits, why one tree overfits but a forest does not, what boosting really does, and the two staples that round out the toolkit — kNN (supervised, lazy) and k-means (unsupervised).
 
 ### A decision tree splits greedily on impurity
 

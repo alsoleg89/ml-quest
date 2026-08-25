@@ -2,7 +2,8 @@
 'use strict';
 
 // Content files push into this global (must exist before data/*.js load)
-window.CourseData = { weeks: [], cards: [], dojoExtras: [] };
+window.CourseData = { weeks: [], cards: [], dojoExtras: [],
+  ru: { week: {}, day: {}, lesson: {}, quiz: {}, ex: {}, case: {}, boss: {}, card: {} } };
 
 window.CFG = {
   pyodideVersion: '0.26.4',

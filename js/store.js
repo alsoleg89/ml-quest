@@ -313,10 +313,47 @@ window.Store = (function () {
 
   function setTheme(t) { S.settings.theme = t; document.documentElement.dataset.theme = t; save(); }
 
+  function setLang(lang) {
+    S.settings.lang = lang;
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+    location.reload();
+  }
+
+  // Swap English strings for Russian in place (runs once at boot, before IDX.build)
+  function applyRu() {
+    const R = CourseData.ru;
+    const m = (t, s, fields) => { if (!s) return; for (const f of fields) if (s[f] !== undefined) t[f] = s[f]; };
+    const mCase = (c, rc) => {
+      if (!rc) return;
+      m(c, rc, ['title', 'brief', 'scenario']);
+      if (rc.stages) c.stages.forEach((st, i) => m(st, rc.stages[i], ['name', 'prompt', 'model', 'rubric']));
+    };
+    for (const W of CourseData.weeks) {
+      m(W, R.week[W.id], ['title', 'subtitle', 'goal']);
+      for (const d of W.days) m(d, R.day[d.id], ['title']);
+      for (const [id, L] of Object.entries(W.lessons || {})) m(L, R.lesson[id], ['title', 'md']);
+      for (const [id, q] of Object.entries(W.quizzes || {})) {
+        const rq = R.quiz[id];
+        if (rq) q.forEach((it, i) => m(it, rq[i], ['q', 'options', 'explain']));
+      }
+      for (const [id, e] of Object.entries(W.exercises || {})) m(e, R.ex[id], ['title', 'brief', 'description', 'hints']);
+      for (const [id, c] of Object.entries(W.cases || {})) mCase(c, R.case[id]);
+      if (W.boss) {
+        const rb = R.boss[W.boss.id];
+        if (rb) {
+          m(W.boss, rb, ['title', 'intro']);
+          if (rb.quiz) W.boss.quiz.forEach((it, i) => m(it, rb.quiz[i], ['q', 'options', 'explain']));
+        }
+      }
+    }
+    for (const c of CourseData.cards) m(c, R.card[c.id], ['q', 'a']);
+    for (const x of CourseData.dojoExtras) mCase(x, R.case[x.id]);
+  }
+
   return {
     get S() { return S; },
     IDX, load, save, level, addXp, markDone, isDone, checkBadges,
     ensureQuest, claimQuest, gradeCard, pickCards, deckStats,
-    exportJson, importJson, resetAll, setTheme, todayStr,
+    exportJson, importJson, resetAll, setTheme, setLang, applyRu, todayStr,
   };
 })();

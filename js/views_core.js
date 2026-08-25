@@ -72,6 +72,10 @@ window.App = (function () {
           h('div', { class: 'xp-bar' }, h('div', { style: { width: Math.round(lv.pct * 100) + '%' } }))),
         h('div', { class: 'lvl-chip', title: 'Level ' + lv.n }, 'Lv ' + lv.n + ' · ' + lv.title),
         h('button', {
+          class: 'icon-btn', title: 'Switch content language / Переключить язык',
+          onclick: () => Store.setLang(Store.S.settings.lang === 'ru' ? 'en' : 'ru')
+        }, Store.S.settings.lang === 'ru' ? 'EN' : 'RU'),
+        h('button', {
           class: 'icon-btn', title: 'Toggle theme',
           onclick: () => { Store.setTheme(Store.S.settings.theme === 'dark' ? 'light' : 'dark'); }
         }, Store.S.settings.theme === 'dark' ? '☀️' : '🌙'),
@@ -144,6 +148,7 @@ window.App = (function () {
 
   function boot() {
     Store.load();
+    if (Store.S.settings.lang === 'ru') Store.applyRu();
     Store.IDX.build();
     Store.ensureQuest();
     window.addEventListener('hashchange', render);
